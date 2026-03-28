@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Health check GET /",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Missing phone field",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "message": "Test message"
+      },
+      "expectedStatus": 400
+    },
+    {
+      "name": "Missing message field",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "phone": "+79001234567"
+      },
+      "expectedStatus": 400
+    },
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 204
+    }
+  ]
+}

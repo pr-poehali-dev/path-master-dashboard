@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import { db, Path } from '@/lib/db';
 import { Session } from '@/lib/auth';
 import QuestPlay from './QuestPlay';
+import { sendAccessRequestSms } from '@/lib/sms';
 
 interface Props { session: Session; onSessionUpdate: (s: Session) => void; }
 
@@ -26,8 +27,13 @@ export default function Cabinet({ session, onSessionUpdate }: Props) {
     return <QuestPlay path={playPath} session={session} onBack={() => setPlayPath(null)} />;
   }
 
-  const handleRequestAccess = (pathId: number) => {
+  const handleRequestAccess = async (pathId: number) => {
     db.requestAccess(pathId, session.userId);
+    const path = db.getPaths().find(p => p.id === pathId);
+    const owner = db.getUsers().find(u => u.role === 'owner' || u.role === 'admin');
+    if (owner?.phone && path) {
+      await sendAccessRequestSms(owner.phone, session.name, path.title);
+    }
     window.location.reload();
   };
 

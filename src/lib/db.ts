@@ -91,7 +91,9 @@ function getDB(): Record<string, unknown[]> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
-  } catch {}
+  } catch (_e) {
+    // ignore parse error
+  }
   return initDB();
 }
 
@@ -101,39 +103,15 @@ function saveDB(db: Record<string, unknown[]>) {
 
 function initDB(): Record<string, unknown[]> {
   const db: Record<string, unknown[]> = {
-    users: [
-      { id: 1, name: 'Владелец', email: 'owner@master-path.ru', phone: '+79000000000', password_hash: 'demo1234', role: 'owner', is_verified: true, created_at: new Date().toISOString() },
-      { id: 2, name: 'Александра', email: 'alex@example.ru', phone: '+79111111111', password_hash: 'pass123', role: 'participant', is_verified: true, created_at: new Date().toISOString() },
-      { id: 3, name: 'Максим Ред.', email: 'maks@example.ru', phone: '+79222222222', password_hash: 'pass123', role: 'editor', is_verified: true, created_at: new Date().toISOString() },
-    ],
-    sites: [
-      { id: 1, name: 'Главный квест-портал', description: 'Основная платформа для путей и загадок', owner_id: 1, integration_key: 'MASTER-KEY-DEMO-001', is_active: true, created_at: new Date().toISOString() },
-    ],
-    site_members: [
-      { id: 1, site_id: 1, user_id: 2, role: 'participant', is_approved: true, invited_at: new Date().toISOString() },
-      { id: 2, site_id: 1, user_id: 3, role: 'editor', is_approved: true, invited_at: new Date().toISOString() },
-    ],
-    paths: [
-      { id: 1, site_id: 1, title: 'Путь Искателя', description: 'Первый путь для новых участников', sort_order: 1, is_active: true, created_at: new Date().toISOString() },
-      { id: 2, site_id: 1, title: 'Путь Мудреца', description: 'Путь для опытных участников', sort_order: 2, is_active: true, created_at: new Date().toISOString() },
-    ],
-    levels: [
-      { id: 1, path_id: 1, title: 'Уровень 1: Начало пути', sort_order: 1, riddle_type: 'text', riddle_content: 'Я говорю без уст, и слышу без ушей, не имею тела, но оживаю на ветру. Что я?', hint: 'Подумай о природных явлениях', answer: 'эхо', hint_penalty: 10, created_at: new Date().toISOString() },
-      { id: 2, path_id: 1, title: 'Уровень 2: Испытание тьмой', sort_order: 2, riddle_type: 'text', riddle_content: 'Чем больше берёшь — тем больше становится. Что это?', hint: 'Связано с физическим действием', answer: 'яма', hint_penalty: 10, created_at: new Date().toISOString() },
-      { id: 3, path_id: 1, title: 'Уровень 3: Врата истины', sort_order: 3, riddle_type: 'text', riddle_content: 'Всегда впереди тебя, но не может быть увидено. Что это?', hint: 'Это то, что ещё не наступило', answer: 'будущее', hint_penalty: 15, created_at: new Date().toISOString() },
-      { id: 4, path_id: 2, title: 'Уровень 1: Зеркало разума', sort_order: 1, riddle_type: 'text', riddle_content: 'Что есть у человека, что нельзя ни продать, ни купить, ни украсть?', hint: 'Это неотъемлемая часть каждого', answer: 'душа', hint_penalty: 20, created_at: new Date().toISOString() },
-    ],
-    path_access: [
-      { id: 1, path_id: 1, user_id: 2, access_token: 'tok-alex-path1-demo', is_active: true, requested_at: new Date().toISOString() },
-    ],
-    progress: [
-      { id: 1, user_id: 2, path_id: 1, level_id: 1, completed: true, used_hint: false, score: 100, completed_at: new Date().toISOString() },
-      { id: 2, user_id: 2, path_id: 1, level_id: 2, completed: false, used_hint: false, score: 100 },
-    ],
+    users: [],
+    sites: [],
+    site_members: [],
+    paths: [],
+    levels: [],
+    path_access: [],
+    progress: [],
     messages: [],
-    join_requests: [
-      { id: 1, site_id: 1, name: 'Новый участник', phone: '+79333333333', email: 'new@test.ru', status: 'pending', created_at: new Date().toISOString() },
-    ],
+    join_requests: [],
   };
   saveDB(db);
   return db;
@@ -167,12 +145,16 @@ export const db = {
     saveDB(d);
   },
 
-  addSite: (site: Omit<Site, 'id' | 'created_at' | 'integration_key'>) => {
+  addSite: (site: Omit<Site, 'id' | 'created_at' | 'integration_key'> & { integration_key?: string }) => {
     const d = getDB();
     const sites = d.sites as Site[];
     const id = Math.max(0, ...sites.map(s => s.id)) + 1;
-    const key = `KEY-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    const newSite = { ...site, id, integration_key: key, created_at: new Date().toISOString() };
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const key = site.integration_key || `MP-${seg()}-${seg()}-${seg()}`;
+    const { integration_key: _ik, ...rest } = site;
+    void _ik;
+    const newSite = { ...rest, id, integration_key: key, created_at: new Date().toISOString() };
     d.sites = [...sites, newSite];
     saveDB(d);
     return newSite;
@@ -321,18 +303,37 @@ export const db = {
   },
 };
 
-export const INTEGRATION_TEMPLATE = (site: Site) => `МАСТЕР ПУТЕЙ — ДАННЫЕ ИНТЕГРАЦИИ
-=====================================
-Платформа: Мастер путей
-Сайт: ${site.name}
-Ключ интеграции: ${site.integration_key}
-Создан: ${new Date(site.created_at).toLocaleDateString('ru')}
+export const INTEGRATION_TEMPLATE = (site: Site) => `МАСТЕР ПУТЕЙ — ДАННЫЕ ИНТЕГРАЦИИ ДЛЯ ИИ-ГЕНЕРАТОРА
+=====================================================
+Скопируй этот блок целиком и вставь в запрос ИИ-генератору сайтов.
 
-ИНСТРУКЦИЯ ДЛЯ ИИ-ГЕНЕРАТОРА:
-Создай сайт-квест, интегрированный с платформой "Мастер путей".
-Ключ интеграции сайта: ${site.integration_key}
-При запросе участника на квест — отправлять на платформу с ключом: ${site.integration_key}
-Форма регистрации участников должна передавать: имя, телефон, email и ключ: ${site.integration_key}
-Кнопка "Запросить участие" ведёт на: /join?key=${site.integration_key}
-Используй синий+золотой стиль. Заголовок: "${site.name}"
-=====================================`;
+ЗАДАЧА ДЛЯ ИИ:
+Создай сайт-квест, который интегрируется с платформой "Мастер путей".
+Название сайта: «${site.name}»
+
+КЛЮЧ ИНТЕГРАЦИИ (обязательный параметр): ${site.integration_key}
+
+ТЕХНИЧЕСКИЕ ТРЕБОВАНИЯ:
+1. На главной странице — форма регистрации участника с полями: Имя, Телефон, Email.
+2. При отправке формы — POST-запрос на главную платформу с параметрами:
+   { "name": "...", "phone": "...", "email": "...", "integration_key": "${site.integration_key}" }
+3. Кнопка «Запросить участие в квесте» создаёт заявку с ключом: ${site.integration_key}
+4. После регистрации показывать: «Ваша заявка принята! Владелец активирует доступ.»
+5. Уникальная ссылка для участника имеет формат: /quest?key=${site.integration_key}&user=ID
+
+СТИЛЬ:
+- Основные цвета: тёмно-синий (#0a0f1e) + золотой (#d4af37) + фиолетовый акцент (#8b5cf6)
+- Шрифты: Montserrat (заголовки), Cormorant (декоративный)
+- Атмосфера: мистика, квест, приключение
+
+ИДЕНТИФИКАТОР ПЛАТФОРМЫ: master-paths-v1
+КЛЮЧ САЙТА: ${site.integration_key}
+=====================================================`;
+
+export function generateIntegrationKey(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const segments = [4, 4, 4].map(() =>
+    Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  );
+  return `MP-${segments.join('-')}`;
+}

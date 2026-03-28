@@ -18,6 +18,10 @@ export function getSession(): Session | null {
   return null;
 }
 
+export function isFirstRun(): boolean {
+  return db.getUsers().length === 0;
+}
+
 export function login(login: string, password: string): Session | null {
   const user = db.findUserByEmailOrPhone(login, password);
   if (!user) return null;
@@ -30,6 +34,32 @@ export function logout() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+export function registerOwner(data: {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}): { ok: boolean; error?: string } {
+  if (db.getUsers().length > 0) {
+    return { ok: false, error: 'Владелец уже зарегистрирован' };
+  }
+  db.addUser({
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    password_hash: data.password,
+    role: 'owner',
+    is_verified: true,
+  });
+  db.addSite({
+    name: 'Главный квест-портал',
+    description: 'Основная платформа для путей и загадок',
+    owner_id: 1,
+    is_active: true,
+  });
+  return { ok: true };
+}
+
 export function register(data: {
   name: string;
   email: string;
@@ -37,7 +67,7 @@ export function register(data: {
   password: string;
 }): { ok: boolean; error?: string; user?: User } {
   const users = db.getUsers();
-  if (users.find(u => u.email === data.email)) {
+  if (data.email && users.find(u => u.email === data.email)) {
     return { ok: false, error: 'Email уже используется' };
   }
   if (users.find(u => u.phone === data.phone)) {

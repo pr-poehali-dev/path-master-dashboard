@@ -6,7 +6,7 @@ import InviteModal from './InviteModal';
 
 interface Props { session: Session; }
 
-type Invite = 'telegram' | 'vk' | 'sms';
+type Invite = 'vk' | 'sms';
 
 export default function MembersManager({ session }: Props) {
   const [users, setUsers] = useState<(User & { password_hash?: string })[]>(() => db.getUsers() as (User & { password_hash?: string })[]);
@@ -53,13 +53,9 @@ export default function MembersManager({ session }: Props) {
         </div>
         {canEdit && (
           <div className="flex gap-2">
-            <button onClick={() => setInvite('telegram')} className="btn-purple flex items-center gap-1.5 text-sm">
-              <Icon name="Send" size={14} />
-              Telegram
-            </button>
             <button onClick={() => setInvite('vk')} className="btn-blue flex items-center gap-1.5 text-sm">
               <Icon name="Users" size={14} />
-              ВК
+              ВКонтакте
             </button>
             <button onClick={() => setInvite('sms')} className="flex items-center gap-1.5 text-sm bg-green-800/50 text-green-300 border border-green-600/40 font-semibold px-4 py-2.5 rounded-lg hover:scale-105 transition-all">
               <Icon name="MessageSquare" size={14} />

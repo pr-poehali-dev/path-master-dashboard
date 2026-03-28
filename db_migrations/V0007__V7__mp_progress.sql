@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_progress (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES mp_users(id), path_id INTEGER REFERENCES mp_paths(id), level_id INTEGER REFERENCES mp_levels(id), completed BOOLEAN DEFAULT FALSE, used_hint BOOLEAN DEFAULT FALSE, attempts INTEGER DEFAULT 0, score INTEGER DEFAULT 100, completed_at TIMESTAMP);

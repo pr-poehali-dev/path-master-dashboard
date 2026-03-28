@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_sites (id SERIAL PRIMARY KEY, name VARCHAR(200) NOT NULL, description TEXT, owner_id INTEGER REFERENCES mp_users(id), integration_key VARCHAR(100) UNIQUE DEFAULT md5(random()::text), is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW());

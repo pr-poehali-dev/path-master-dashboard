@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_paths (id SERIAL PRIMARY KEY, site_id INTEGER REFERENCES mp_sites(id), title VARCHAR(200) NOT NULL, description TEXT, cover_url TEXT, sort_order INTEGER DEFAULT 0, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW());

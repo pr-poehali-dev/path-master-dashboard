@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_site_members (id SERIAL PRIMARY KEY, site_id INTEGER REFERENCES mp_sites(id), user_id INTEGER REFERENCES mp_users(id), role VARCHAR(30) NOT NULL DEFAULT 'participant', is_approved BOOLEAN DEFAULT FALSE, invited_at TIMESTAMP DEFAULT NOW(), approved_at TIMESTAMP);

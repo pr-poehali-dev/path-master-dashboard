@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS mp_messages (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES mp_users(id), to_user_id INTEGER REFERENCES mp_users(id), site_id INTEGER REFERENCES mp_sites(id), content TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW());
+
+CREATE TABLE IF NOT EXISTS mp_join_requests (id SERIAL PRIMARY KEY, site_id INTEGER REFERENCES mp_sites(id), name VARCHAR(200), phone VARCHAR(30), email VARCHAR(200), status VARCHAR(20) DEFAULT 'pending', created_at TIMESTAMP DEFAULT NOW());

@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_path_access (id SERIAL PRIMARY KEY, path_id INTEGER REFERENCES mp_paths(id), user_id INTEGER REFERENCES mp_users(id), access_token VARCHAR(100) UNIQUE DEFAULT md5(random()::text || now()::text), is_active BOOLEAN DEFAULT FALSE, requested_at TIMESTAMP DEFAULT NOW(), activated_at TIMESTAMP);

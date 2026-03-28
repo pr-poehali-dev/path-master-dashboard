@@ -1,0 +1,5 @@
+INSERT INTO mp_levels (path_id, title, sort_order, riddle_type, riddle_content, hint, answer) SELECT p.id, 'Уровень 1: Начало пути', 1, 'text', 'Я говорю без уст, и слышу без ушей, не имею тела, но оживаю на ветру. Что я?', 'Подумай о природных явлениях', 'эхо' FROM mp_paths p WHERE p.title = 'Путь Искателя';
+
+INSERT INTO mp_levels (path_id, title, sort_order, riddle_type, riddle_content, hint, answer) SELECT p.id, 'Уровень 2: Испытание тьмой', 2, 'text', 'Чем больше берёшь — тем больше становится. Что это?', 'Связано с физическим действием', 'яма' FROM mp_paths p WHERE p.title = 'Путь Искателя';
+
+INSERT INTO mp_levels (path_id, title, sort_order, riddle_type, riddle_content, hint, answer) SELECT p.id, 'Уровень 3: Врата истины', 3, 'text', 'Всегда впереди тебя, но не может быть увидено. Что это?', 'Это то, что ещё не наступило', 'будущее' FROM mp_paths p WHERE p.title = 'Путь Искателя';

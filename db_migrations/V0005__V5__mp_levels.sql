@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mp_levels (id SERIAL PRIMARY KEY, path_id INTEGER REFERENCES mp_paths(id), title VARCHAR(200) NOT NULL, sort_order INTEGER DEFAULT 0, riddle_type VARCHAR(20) DEFAULT 'text', riddle_content TEXT, riddle_file_url TEXT, hint TEXT, answer VARCHAR(500) NOT NULL, hint_penalty INTEGER DEFAULT 10, created_at TIMESTAMP DEFAULT NOW());
